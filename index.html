@@ -4,24 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>scRNA-seq Pipeline Reference — iOB</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0f14;
-    --surface: #151920;
-    --surface2: #1c2029;
-    --border: #2a2f3a;
-    --text: #e2e4e8;
-    --text-dim: #8b919e;
-    --red: #f4555a;
-    --red-bg: #f4555a12;
-    --orange: #f59e42;
-    --orange-bg: #f59e4212;
-    --blue: #5b9cf5;
-    --purple: #a78bfa;
-    --green: #4ade80;
-    --green-bg: #4ade8012;
-    --cyan: #22d3ee;
+    --bg: #F8F3F8;
+    --surface: #FFFFFF;
+    --surface2: #F0E6F0;
+    --border: #E5C8E3;
+    --text: #2E1A2E;
+    --text-dim: #6B4A6B;
+    --red: #d32f2f;
+    --red-bg: #d32f2f0c;
+    --orange: #e67e22;
+    --orange-bg: #e67e220c;
+    --blue: #0d7377;
+    --purple: #AE5CAA;
+    --green: #2e7d32;
+    --green-bg: #2e7d320c;
+    --cyan: #0d7377;
+    --card-bg: #FFFFFF;
+    --background-color: #F8F3F8;
+    --plum-deep: #361535;
+    --plum-dark: #552A53;
+    --mauve: #8C4F89;
+    --magenta: #AE5CAA;
+    --teal: #0d7377;
+    --teal-light: #0d9ca0;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,7 +37,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif;
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
     line-height: 1.6;
     padding: 32px 24px 60px;
     max-width: 1100px;
@@ -41,7 +49,7 @@
     font-weight: 700;
     letter-spacing: -0.5px;
     margin-bottom: 6px;
-    background: linear-gradient(135deg, var(--blue), var(--purple));
+    background: linear-gradient(135deg, var(--plum-dark), var(--teal));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -77,8 +85,8 @@
     font-family: inherit;
   }
 
-  .tab:hover { color: var(--text); }
-  .tab.active { background: var(--surface2); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .tab:hover { color: var(--plum-dark); }
+  .tab.active { background: var(--surface); color: var(--plum-dark); box-shadow: 0 1px 4px rgba(85,42,83,0.15); }
 
   .panel { display: none; }
   .panel.active { display: block; }
@@ -169,9 +177,9 @@
     font-weight: 600;
   }
 
-  .verdict.bad { background: var(--red-bg); color: var(--red); border: 1px solid #f4555a22; }
-  .verdict.warn { background: var(--orange-bg); color: var(--orange); border: 1px solid #f59e4222; }
-  .verdict.good { background: var(--green-bg); color: var(--green); border: 1px solid #4ade8022; }
+  .verdict.bad { background: #fce4ec; color: var(--red); border: 1px solid #f4c7c7; }
+  .verdict.warn { background: #fff3e0; color: var(--orange); border: 1px solid #ffe0b2; }
+  .verdict.good { background: #e8f5e9; color: var(--green); border: 1px solid #c8e6c9; }
 
   /* Droplet SVG area */
   .droplet-visual {
@@ -219,9 +227,9 @@
     font-weight: 500;
   }
 
-  .tag.detectable { background: #4ade8018; color: var(--green); }
-  .tag.invisible { background: #f4555a18; color: var(--red); }
-  .tag.partial { background: #f59e4218; color: var(--orange); }
+  .tag.detectable { background: #2e7d3218; color: var(--green); }
+  .tag.invisible { background: #d32f2f18; color: var(--red); }
+  .tag.partial { background: #e67e2218; color: var(--orange); }
 
   /* Tools table */
   .tool-grid {
@@ -244,7 +252,7 @@
     font-family: 'IBM Plex Mono', monospace;
     font-size: 13px;
     font-weight: 500;
-    color: var(--cyan);
+    color: var(--plum-dark);
   }
 
   .tool-desc {
@@ -304,9 +312,8 @@
   .key-insight {
     margin-top: 8px;
     padding: 8px 12px;
-    background: var(--blue);
-    background: linear-gradient(135deg, #5b9cf510, #a78bfa10);
-    border-left: 3px solid var(--blue);
+    background: linear-gradient(135deg, #AE5CAA10, #0d737710);
+    border-left: 3px solid var(--plum-dark);
     border-radius: 0 6px 6px 0;
     font-size: 12.5px;
     color: var(--text);
@@ -417,7 +424,7 @@
   .failure-card.info .impact { color: var(--blue); }
 
   .connection-box {
-    background: linear-gradient(135deg, #f4555a08, #f59e4208);
+    background: linear-gradient(135deg, #d32f2f08, #e67e2208);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 18px;
@@ -669,7 +676,7 @@
   }
 
   .pf-step.highlight {
-    background: linear-gradient(180deg, var(--surface2), #5b9cf510);
+    background: linear-gradient(180deg, var(--surface2), #0d9ca010);
     border-bottom: 2px solid var(--blue);
   }
 
@@ -692,7 +699,7 @@
 
   .tab-map-item:hover {
     border-color: var(--blue);
-    background: #5b9cf508;
+    background: #0d9ca008;
   }
 
   .tab-map-item .tmi-label {
@@ -1078,13 +1085,13 @@
   }
 
   .qc-layer-card.raw {
-    background: linear-gradient(135deg, #4ade8008, #22d3ee08);
-    border: 1px solid #4ade8025;
+    background: linear-gradient(135deg, #2e7d3208, #0d737708);
+    border: 1px solid #2e7d3225;
   }
 
   .qc-layer-card.processed {
-    background: linear-gradient(135deg, #f59e4208, #f4555a08);
-    border: 1px solid #f59e4225;
+    background: linear-gradient(135deg, #e67e2208, #d32f2f08);
+    border: 1px solid #e67e2225;
   }
 
   .qc-layer-card h4 {
@@ -1170,41 +1177,41 @@
     <div class="hashing-visual">
       <div class="hash-sample">
         <div class="hs-cells">
-          <div class="hs-cell" style="background:#5b9cf5"></div>
-          <div class="hs-cell" style="background:#5b9cf5"></div>
-          <div class="hs-cell" style="background:#5b9cf5"></div>
+          <div class="hs-cell" style="background:#0d9ca0"></div>
+          <div class="hs-cell" style="background:#0d9ca0"></div>
+          <div class="hs-cell" style="background:#0d9ca0"></div>
         </div>
-        <div class="hs-label" style="color:#5b9cf5">Sample A</div>
+        <div class="hs-label" style="color:#0d9ca0">Sample A</div>
         <div class="hs-tag">HTO-1</div>
       </div>
       <div class="hash-sample">
         <div class="hs-cells">
-          <div class="hs-cell" style="background:#f59e42"></div>
-          <div class="hs-cell" style="background:#f59e42"></div>
-          <div class="hs-cell" style="background:#f59e42"></div>
+          <div class="hs-cell" style="background:#e67e22"></div>
+          <div class="hs-cell" style="background:#e67e22"></div>
+          <div class="hs-cell" style="background:#e67e22"></div>
         </div>
-        <div class="hs-label" style="color:#f59e42">Sample B</div>
+        <div class="hs-label" style="color:#e67e22">Sample B</div>
         <div class="hs-tag">HTO-2</div>
       </div>
       <div class="hash-sample">
         <div class="hs-cells">
-          <div class="hs-cell" style="background:#a78bfa"></div>
-          <div class="hs-cell" style="background:#a78bfa"></div>
-          <div class="hs-cell" style="background:#a78bfa"></div>
+          <div class="hs-cell" style="background:#AE5CAA"></div>
+          <div class="hs-cell" style="background:#AE5CAA"></div>
+          <div class="hs-cell" style="background:#AE5CAA"></div>
         </div>
-        <div class="hs-label" style="color:#a78bfa">Sample C</div>
+        <div class="hs-label" style="color:#AE5CAA">Sample C</div>
         <div class="hs-tag">HTO-3</div>
       </div>
       <div class="hash-arrow">→</div>
       <div class="hash-pool">
         <svg width="70" height="70" viewBox="0 0 70 70">
-          <ellipse cx="35" cy="35" rx="30" ry="30" fill="#22d3ee10" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="4,2"/>
-          <circle cx="22" cy="28" r="6" fill="#5b9cf5" opacity="0.7"/>
-          <circle cx="40" cy="24" r="6" fill="#f59e42" opacity="0.7"/>
-          <circle cx="30" cy="42" r="6" fill="#a78bfa" opacity="0.7"/>
-          <circle cx="48" cy="40" r="6" fill="#5b9cf5" opacity="0.7"/>
-          <circle cx="20" cy="46" r="6" fill="#f59e42" opacity="0.7"/>
-          <circle cx="44" cy="52" r="6" fill="#a78bfa" opacity="0.7"/>
+          <ellipse cx="35" cy="35" rx="30" ry="30" fill="#0d737710" stroke="#0d7377" stroke-width="1.5" stroke-dasharray="4,2"/>
+          <circle cx="22" cy="28" r="6" fill="#0d9ca0" opacity="0.7"/>
+          <circle cx="40" cy="24" r="6" fill="#e67e22" opacity="0.7"/>
+          <circle cx="30" cy="42" r="6" fill="#AE5CAA" opacity="0.7"/>
+          <circle cx="48" cy="40" r="6" fill="#0d9ca0" opacity="0.7"/>
+          <circle cx="20" cy="46" r="6" fill="#e67e22" opacity="0.7"/>
+          <circle cx="44" cy="52" r="6" fill="#AE5CAA" opacity="0.7"/>
         </svg>
         <div class="hp-label">Pooled → 10x Chip</div>
       </div>
@@ -1270,14 +1277,14 @@
       <div class="card-label">True Doublet</div>
       <h3>Two cells, one droplet</h3>
       <div class="droplet-visual">
-        <svg width="200" height="120" viewBox="0 0 200 120">
-          <ellipse cx="100" cy="60" rx="75" ry="50" fill="#f4555a08" stroke="#f4555a" stroke-width="1.5" stroke-dasharray="5,3"/>
-          <circle cx="75" cy="55" r="22" fill="#5b9cf5" opacity="0.7"/>
-          <text x="75" y="59" text-anchor="middle" font-size="9" fill="#fff" font-weight="600" font-family="IBM Plex Sans">Cell A</text>
-          <text x="75" y="38" text-anchor="middle" font-size="7" fill="#5b9cf5" font-weight="600" font-family="IBM Plex Mono">HTO-1</text>
-          <circle cx="128" cy="62" r="22" fill="#f59e42" opacity="0.7"/>
-          <text x="128" y="66" text-anchor="middle" font-size="9" fill="#fff" font-weight="600" font-family="IBM Plex Sans">Cell B</text>
-          <text x="128" y="90" text-anchor="middle" font-size="7" fill="#f59e42" font-weight="600" font-family="IBM Plex Mono">HTO-2</text>
+        <svg width="220" height="130" viewBox="0 0 220 130">
+          <ellipse cx="110" cy="65" rx="85" ry="55" fill="#d32f2f06" stroke="#d32f2f" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <circle cx="80" cy="58" r="24" fill="#0d7377"/>
+          <text x="80" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Montserrat">Cell A</text>
+          <text x="80" y="30" text-anchor="middle" font-size="10" fill="#0d7377" font-weight="700" font-family="Montserrat">HTO-1</text>
+          <circle cx="140" cy="66" r="24" fill="#AE5CAA"/>
+          <text x="140" y="70" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Montserrat">Cell B</text>
+          <text x="140" y="100" text-anchor="middle" font-size="10" fill="#AE5CAA" font-weight="700" font-family="Montserrat">HTO-2</text>
         </svg>
       </div>
       <ul>
@@ -1293,16 +1300,16 @@
       <div class="card-label">HTO Cross-Contamination</div>
       <h3>One cell + ambient HTO noise</h3>
       <div class="droplet-visual">
-        <svg width="200" height="120" viewBox="0 0 200 120">
-          <ellipse cx="100" cy="60" rx="75" ry="50" fill="#f59e4208" stroke="#f59e42" stroke-width="1.5" stroke-dasharray="5,3"/>
-          <circle cx="85" cy="55" r="22" fill="#5b9cf5" opacity="0.7"/>
-          <text x="85" y="59" text-anchor="middle" font-size="9" fill="#fff" font-weight="600" font-family="IBM Plex Sans">Cell A</text>
-          <text x="85" y="38" text-anchor="middle" font-size="7" fill="#5b9cf5" font-weight="600" font-family="IBM Plex Mono">HTO-1</text>
-          <circle cx="125" cy="48" r="3" fill="#f59e42" opacity="0.45"/>
-          <circle cx="132" cy="60" r="2.5" fill="#f59e42" opacity="0.35"/>
-          <circle cx="120" cy="72" r="2.5" fill="#f59e42" opacity="0.4"/>
-          <circle cx="137" cy="73" r="2" fill="#f59e42" opacity="0.3"/>
-          <text x="140" y="88" font-size="7" fill="#f59e42" font-style="italic" font-family="IBM Plex Sans" opacity="0.7">ambient HTO-2</text>
+        <svg width="220" height="130" viewBox="0 0 220 130">
+          <ellipse cx="110" cy="65" rx="85" ry="55" fill="#e67e2206" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <circle cx="90" cy="58" r="24" fill="#0d7377"/>
+          <text x="90" y="62" text-anchor="middle" font-size="10" fill="#fff" font-weight="700" font-family="Montserrat">Cell A</text>
+          <text x="90" y="30" text-anchor="middle" font-size="10" fill="#0d7377" font-weight="700" font-family="Montserrat">HTO-1</text>
+          <circle cx="138" cy="50" r="4" fill="#AE5CAA" opacity="0.6"/>
+          <circle cx="148" cy="64" r="3.5" fill="#AE5CAA" opacity="0.5"/>
+          <circle cx="132" cy="78" r="3.5" fill="#AE5CAA" opacity="0.55"/>
+          <circle cx="152" cy="80" r="3" fill="#AE5CAA" opacity="0.45"/>
+          <text x="150" y="100" font-size="9" fill="#552A53" font-weight="600" font-family="Montserrat">ambient HTO-2</text>
         </svg>
       </div>
       <ul>
@@ -2114,10 +2121,10 @@
     <div class="read1-diagram">
       <h4>10x Chromium 3' Read 1 Structure — and the diversity problem</h4>
       <div class="read1-bar">
-        <div class="read1-segment" style="flex:16;background:#5b9cf5">16bp Barcode</div>
-        <div class="read1-segment" style="flex:12;background:#a78bfa">12bp UMI</div>
-        <div class="read1-segment" style="flex:5;background:#f4555a;font-size:9px">polyT</div>
-        <div class="read1-segment" style="flex:45;background:#22d3ee">cDNA insert →</div>
+        <div class="read1-segment" style="flex:16;background:#0d9ca0">16bp Barcode</div>
+        <div class="read1-segment" style="flex:12;background:#AE5CAA">12bp UMI</div>
+        <div class="read1-segment" style="flex:5;background:#d32f2f;font-size:9px">polyT</div>
+        <div class="read1-segment" style="flex:45;background:#0d7377">cDNA insert →</div>
       </div>
       <div style="display:flex;gap:0;margin-bottom:6px">
         <div style="flex:16;text-align:center;font-size:9px;color:var(--orange);font-weight:600">Structured ⚠</div>
