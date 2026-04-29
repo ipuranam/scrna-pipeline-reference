@@ -70,6 +70,8 @@
     border-radius: 10px;
     padding: 4px;
     width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .tab {
@@ -320,26 +322,146 @@
   }
 
   @media (max-width: 700px) {
-    .compare-grid { grid-template-columns: 1fr; }
+    body { padding: 16px 12px 40px; }
+    h1 { font-size: 20px; letter-spacing: -0.3px; }
+    .subtitle { font-size: 12px; margin-bottom: 20px; }
+
+    /* Tabs: horizontal scroll instead of wrapping */
+    .tabs {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+      width: 100%;
+      flex-wrap: nowrap;
+      gap: 2px;
+      padding: 3px;
+      margin-bottom: 18px;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      padding: 7px 12px;
+      font-size: 11.5px;
+      flex-shrink: 0;
+    }
+
+    /* Cards */
+    .card { padding: 16px; }
+    .card h3 { font-size: 15px; }
+    .card p, .card li { font-size: 12.5px; }
+    .card-label { font-size: 10px; letter-spacing: 1px; }
+
+    /* Grids → single column */
+    .compare-grid { grid-template-columns: 1fr; gap: 14px; }
     .taxonomy { grid-template-columns: 1fr; }
     .tool-row { grid-template-columns: 1fr; gap: 4px; }
     .tool-rating { text-align: left; }
-    .tabs { flex-wrap: wrap; }
-    h1 { font-size: 22px; }
-    .flow-chain { flex-wrap: wrap; }
-    .platform-versus { grid-template-columns: 1fr; }
-    .vs-divider { padding: 8px 0; }
+    .platform-versus { grid-template-columns: 1fr; gap: 14px; }
+    .vs-divider { padding: 6px 0; }
     .fix-compare { grid-template-columns: 1fr; }
     .design-grid { grid-template-columns: 1fr; }
     .failure-grid { grid-template-columns: 1fr; }
     .qc-compare-grid { grid-template-columns: 1fr; }
     .diag-check { grid-template-columns: 1fr; }
-    .pipeline-layer { grid-template-columns: 1fr; }
-    .cascade-item { grid-template-columns: 1fr; gap: 4px; }
-    .loading-visual { flex-wrap: wrap; gap: 12px; }
-    .tab-map { grid-template-columns: repeat(2, 1fr); }
     .benefit-row { grid-template-columns: 1fr; }
-    .hashing-visual { gap: 10px; }
+    .tab-map { grid-template-columns: 1fr 1fr; gap: 5px; }
+
+    /* Pipeline flow → vertical on mobile */
+    .pipeline-flow {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+    .pf-step {
+      border-radius: 0;
+      padding: 8px 12px;
+      flex-direction: row;
+      gap: 10px;
+      min-width: unset;
+    }
+    .pf-step:first-child { border-radius: 8px 8px 0 0; }
+    .pf-step:last-child { border-radius: 0 0 8px 8px; }
+    .pf-step .pf-icon { font-size: 16px; margin-bottom: 0; }
+    .pf-step .pf-name { font-size: 11px; text-align: left; }
+    .pf-step .pf-detail { font-size: 9px; text-align: left; }
+    .pf-arrow {
+      display: flex;
+      justify-content: center;
+      font-size: 12px;
+      padding: 2px 0;
+      transform: rotate(90deg);
+    }
+
+    /* Flow chain (UMI section) */
+    .flow-chain {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .flow-step {
+      min-width: unset;
+      padding: 8px 12px;
+    }
+    .flow-arrow {
+      transform: rotate(90deg);
+      padding: 2px 0;
+      text-align: center;
+    }
+
+    /* Hashing visual */
+    .hashing-visual {
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+    }
+    .hash-arrow { transform: rotate(90deg); font-size: 16px; }
+
+    /* Pipeline layers (Raw vs Processed) */
+    .pipeline-layer {
+      grid-template-columns: 1fr;
+    }
+    .pipeline-layer .layer-label {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+    .pipeline-layer .layer-visible {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Cascade items */
+    .cascade-item { grid-template-columns: 1fr; gap: 4px; }
+    .cascade-arrow { transform: rotate(90deg); }
+
+    /* Loading bars */
+    .loading-visual { flex-wrap: wrap; gap: 10px; padding: 14px; }
+
+    /* Key insight */
+    .key-insight { font-size: 11.5px; padding: 8px 10px; }
+
+    /* Steps */
+    .step-item { grid-template-columns: 30px 1fr; gap: 10px; }
+    .step-num { width: 30px; height: 30px; font-size: 12px; }
+    .step-item h4 { font-size: 13px; }
+    .step-item p { font-size: 11.5px; }
+
+    /* Tool grid */
+    .tool-name { font-size: 12px; }
+    .tool-desc { font-size: 11px; }
+    .tool-rating { font-size: 11px; }
+
+    /* Glossary */
+    .glossary-grid { grid-template-columns: 1fr !important; }
+
+    /* Spec rows */
+    .spec-row { font-size: 11px; }
+
+    /* Droplet SVGs */
+    .droplet-visual svg { max-width: 180px; height: auto; }
+
+    /* Read1 bar */
+    .read1-bar { height: 30px; }
+    .read1-segment { font-size: 8px; min-width: 30px; }
   }
 
   /* UMI section styles */
@@ -1242,7 +1364,7 @@
   <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
     <div class="card-label" style="color:var(--cyan)">Key Terms</div>
     <h3>Vocabulary for the rest of this reference</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+    <div class="glossary-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">UMI</strong><br><span style="font-size:11px;color:var(--text-dim)">Unique Molecular Identifier — random barcode stamped on each mRNA molecule to enable PCR deduplication</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">PIPs</strong><br><span style="font-size:11px;color:var(--text-dim)">Particle-templated Instant Partitions — vortex-generated emulsion droplets (Illumina Single Cell platform) containing one cell + one barcoded particle</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">TotalSeq-A / HTO</strong><br><span style="font-size:11px;color:var(--text-dim)">BioLegend's oligo-conjugated hashtag antibodies. Poly-A tail design enables co-capture with mRNA during RT</span></div>
