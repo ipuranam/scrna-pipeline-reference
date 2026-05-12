@@ -1239,6 +1239,31 @@
 </head>
 <body>
 
+<!-- PASSWORD GATE -->
+<div id="auth-gate" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:380px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(54,21,53,0.12)">
+    <div style="font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,var(--plum-dark),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">iOrganBio</div>
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:24px">scRNA-seq Pipeline Reference</div>
+    <input type="password" id="auth-pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()" style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:8px;font-family:Montserrat;font-size:14px;background:var(--surface);color:var(--text);outline:none;margin-bottom:12px;text-align:center" autofocus>
+    <button onclick="checkPw()" style="width:100%;padding:12px;background:var(--plum-dark);color:white;border:none;border-radius:8px;font-family:Montserrat;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#8C4F89'" onmouseout="this.style.background='var(--plum-dark)'">Enter</button>
+    <div id="auth-err" style="color:var(--red);font-size:12px;margin-top:10px;display:none">Incorrect password</div>
+  </div>
+</div>
+<script>
+function checkPw(){
+  var p=document.getElementById('auth-pw').value;
+  if(p==='iorgbio'){
+    document.getElementById('auth-gate').style.display='none';
+    sessionStorage.setItem('iob-auth','1');
+  } else {
+    document.getElementById('auth-err').style.display='block';
+    document.getElementById('auth-pw').value='';
+    document.getElementById('auth-pw').focus();
+  }
+}
+if(sessionStorage.getItem('iob-auth')==='1') document.getElementById('auth-gate').style.display='none';
+</script>
+
 <h1>scRNA-seq Pipeline: End-to-End Reference</h1>
 <p class="subtitle">From sample prep to sequencing to analysis — a complete guide to the decisions, failure modes, and QC checkpoints in multiplexed single-cell RNA-seq.</p>
 
@@ -1253,6 +1278,9 @@
   <button class="tab" onclick="showPanel('tools')">Demux Tools</button>
   <button class="tab" onclick="showPanel('rawvproc')">Raw vs Processed QC</button>
   <button class="tab" onclick="showPanel('diagnostics')">Diagnostics</button>
+  <button class="tab" onclick="showPanel('costcalc')">Cost Calculator</button>
+  <button class="tab" onclick="showPanel('timeline')">Timeline</button>
+  <button class="tab" onclick="showPanel('datapipeline')">Data Pipeline</button>
 </div>
 
 <!-- OVERVIEW -->
@@ -1268,8 +1296,8 @@
   <!-- HOW IT WORKS -->
   <div class="card purple" style="margin-bottom:20px">
     <div class="card-label">How It Works</div>
-    <h3>Our scRNA-seq workflow — Illumina Single Cell 3′ RNA Prep, T10</h3>
-    <p style="margin-top:10px;margin-bottom:4px">We use Illumina's Single Cell 3′ RNA Prep (T10) platform, which captures up to 10,000 cells per sample using Particle-templated Instant Partitions (PIPs). Unlike microfluidics-based systems, PIPs are created by vortex mixing — cells are combined with barcoded particles to form templated emulsions on the benchtop. Inside each partition, the cell lyses, its mRNA binds to the barcoded bead, and reverse transcription creates barcoded cDNA. After breaking the emulsion, cDNA is pooled, amplified, and sequenced. HTO libraries are prepared separately using the Supplemental Enrichment and Amplification (SEA) kit.</p>
+    <h3>Our scRNA-seq workflow — Illumina Single Cell 3′ RNA Prep, T100 (14-split)</h3>
+    <p style="margin-top:10px;margin-bottom:4px">We use Illumina's Single Cell 3′ RNA Prep platform with T100 kits split into 14 PIP reactions, capturing ~500 cells per sample across 20-sample multiplexed pools using Particle-templated Instant Partitions (PIPs). Unlike microfluidics-based systems, PIPs are created by vortex mixing — cells are combined with barcoded particles to form templated emulsions on the benchtop. Inside each partition, the cell lyses, its mRNA binds to the barcoded bead, and reverse transcription creates barcoded cDNA. After breaking the emulsion, cDNA is pooled, amplified, and sequenced. HTO libraries are prepared separately using the SNT (Synthetic Nucleotide Tag) Enrichment kit.</p>
 
     <div class="pipeline-flow">
       <div class="pf-step"><div class="pf-icon">🧫</div><div class="pf-name">Cell Suspension</div><div class="pf-detail">Dissociate tissue into single cells</div></div>
@@ -1282,7 +1310,7 @@
       <div class="pf-arrow">→</div>
       <div class="pf-step"><div class="pf-icon">💧</div><div class="pf-name">PIP Capture</div><div class="pf-detail">Vortex to create partitions</div></div>
       <div class="pf-arrow">→</div>
-      <div class="pf-step"><div class="pf-icon">🧬</div><div class="pf-name">RT + WTA + SEA</div><div class="pf-detail">cDNA + HTO library via SEA kit</div></div>
+      <div class="pf-step"><div class="pf-icon">🧬</div><div class="pf-name">RT + WTA + SNT</div><div class="pf-detail">cDNA + HTO library via SNT Enrichment</div></div>
       <div class="pf-arrow">→</div>
       <div class="pf-step"><div class="pf-icon">📊</div><div class="pf-name">Sequencing</div><div class="pf-detail">Read barcodes, UMIs, and transcripts</div></div>
       <div class="pf-arrow">→</div>
@@ -1296,7 +1324,7 @@
   <div class="card green" style="margin-bottom:20px">
     <div class="card-label">Cell Hashing</div>
     <h3>What are HTOs and why do we use them?</h3>
-    <p style="margin-top:10px">We use BioLegend TotalSeq-A hashtag antibodies to label cells from different samples before pooling. TotalSeq-A antibodies are conjugated to unique DNA barcodes (Hashtag Oligonucleotides, or HTOs) that target ubiquitous surface proteins. Each of our 20 samples per pool gets a distinct HTO barcode. After sequencing, the HTO signal determines which sample each cell came from. Because TotalSeq-A uses a poly-A tail design, HTO-derived cDNA is captured alongside mRNA during reverse transcription — the SEA kit then selectively enriches and amplifies these HTO sequences into a separate library for sequencing.</p>
+    <p style="margin-top:10px">We use BioLegend TotalSeq-A hashtag antibodies to label cells from different samples before pooling. TotalSeq-A antibodies are conjugated to unique DNA barcodes (Hashtag Oligonucleotides, or HTOs) that target ubiquitous surface proteins. Each of our 20 samples per pool gets a distinct HTO barcode. After sequencing, the HTO signal determines which sample each cell came from. Because TotalSeq-A uses a poly-A tail design, HTO-derived cDNA is captured alongside mRNA during reverse transcription — the SNT Enrichment kit then selectively enriches and amplifies these HTO sequences into a separate library for sequencing.</p>
 
     <div class="hashing-visual">
       <div class="hash-sample">
@@ -1368,7 +1396,7 @@
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">UMI</strong><br><span style="font-size:11px;color:var(--text-dim)">Unique Molecular Identifier — random barcode stamped on each mRNA molecule to enable PCR deduplication</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">PIPs</strong><br><span style="font-size:11px;color:var(--text-dim)">Particle-templated Instant Partitions — vortex-generated emulsion droplets (Illumina Single Cell platform) containing one cell + one barcoded particle</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">TotalSeq-A / HTO</strong><br><span style="font-size:11px;color:var(--text-dim)">BioLegend's oligo-conjugated hashtag antibodies. Poly-A tail design enables co-capture with mRNA during RT</span></div>
-      <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">SEA Kit</strong><br><span style="font-size:11px;color:var(--text-dim)">Supplemental Enrichment and Amplification — Illumina kit for selectively amplifying HTO/ADT cDNA from the PIPs pellet into a separate library</span></div>
+      <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">SNT Enrichment Kit</strong><br><span style="font-size:11px;color:var(--text-dim)">Synthetic Nucleotide Tag Enrichment — Illumina kit ($840/8 rxns) for selectively amplifying HTO/ADT cDNA from the PIPs pellet into a separate library. Also referred to as the SEA (Supplemental Enrichment and Amplification) kit.</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">Doublet</strong><br><span style="font-size:11px;color:var(--text-dim)">A partition that accidentally captured two or more cells, producing a chimeric transcriptome</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">Ambient RNA / HTO</strong><br><span style="font-size:11px;color:var(--text-dim)">Free-floating molecules from lysed cells that get captured in partitions alongside intact cells</span></div>
       <div style="padding:8px 0;border-bottom:1px solid var(--border)"><strong style="color:var(--text);font-size:12px">DSP-MeOH Fixation</strong><br><span style="font-size:11px;color:var(--text-dim)">Dithiobis(succinimidyl propionate) + methanol fixation — Illumina's validated method for preserving cells before PIP capture</span></div>
@@ -1391,6 +1419,9 @@
       <div class="tab-map-item" onclick="showPanel('tools')"><div class="tmi-label">Demux Tools</div><div class="tmi-desc">Algorithms + robustness</div></div>
       <div class="tab-map-item" onclick="showPanel('rawvproc')"><div class="tmi-label">Raw vs Processed</div><div class="tmi-desc">What transforms hide</div></div>
       <div class="tab-map-item" onclick="showPanel('diagnostics')"><div class="tmi-label">Diagnostics</div><div class="tmi-desc">Step-by-step QC protocol</div></div>
+      <div class="tab-map-item" onclick="showPanel('costcalc')"><div class="tmi-label">Cost Calculator</div><div class="tmi-desc">Per-well pricing + Excel export</div></div>
+      <div class="tab-map-item" onclick="showPanel('timeline')"><div class="tmi-label">Timeline</div><div class="tmi-desc">Step-by-step time estimates</div></div>
+      <div class="tab-map-item" onclick="showPanel('datapipeline')"><div class="tmi-label">Data Pipeline</div><div class="tmi-desc">Sequencer → AWS → RL</div></div>
     </div>
   </div>
 
@@ -1594,7 +1625,7 @@
   <div class="card red" style="margin-bottom:20px">
     <div class="card-label">The Central Tradeoff</div>
     <h3>Loading density vs. doublet rate</h3>
-    <p style="margin-top:10px;font-size:12px;color:var(--text-dim)">Doublet rate scales with loading density. More cells per PIP reaction = lower cost per cell, but more multiplets. The T10 kit supports up to 10,000 cells per reaction with an expected multiplet rate &lt;8% at recommended loading (5,000 input cells). With 20 HTOs per pool, cross-sample doublets are detectable but within-sample doublets remain invisible.</p>
+    <p style="margin-top:10px;font-size:12px;color:var(--text-dim)">Doublet rate scales with loading density. More cells per PIP reaction = lower cost per cell, but more multiplets. Our standard loading is 500 cells per sample with 20 hashtags per pool (10,000 total input cells per T100 14-split reaction). At this loading, multiplet rate is low. With 20 HTOs per pool, cross-sample doublets are detectable but within-sample doublets remain invisible.</p>
 
     <div class="loading-visual">
       <div class="loading-bar-group">
@@ -1631,7 +1662,7 @@
     <p style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:4px">Expected doublet rate by loading density (approximate, varies by platform and prep quality)</p>
 
     <div class="key-insight" style="margin-top:16px">
-      <strong>Our setup — 20-HTO pools on T10:</strong> With 20 samples per pool, ~95% of doublets are cross-sample and theoretically HTO-detectable. This is a significant advantage over lower-plex designs. However, with 20 HTOs the ambient HTO pool is more complex (20 distinct oligos floating around), and the demux task is harder — making tool selection and HTO staining quality even more critical. Within-sample doublets (~5% of all doublets) remain invisible to HTO demux and still require transcriptome-based detection.
+      <strong>Our setup — 20-HTO pools on T100 (14-split):</strong> With 20 samples per pool, ~95% of doublets are cross-sample and theoretically HTO-detectable. This is a significant advantage over lower-plex designs. However, with 20 HTOs the ambient HTO pool is more complex (20 distinct oligos floating around), and the demux task is harder — making tool selection and HTO staining quality even more critical. Within-sample doublets (~5% of all doublets) remain invisible to HTO demux and still require transcriptome-based detection.
     </div>
   </div>
 
@@ -1669,7 +1700,7 @@
 
       <div class="design-card">
         <h4 style="color:var(--purple)">Sequencing Depth</h4>
-        <p>The Illumina T10 recommendation is 10,000 reads per input cell (at 17K input cells = 340M reads per sample). For the SEA-amplified HTO library, ensure adequate read allocation — BioLegend recommends ~100 reads per cell per antibody for TotalSeq-A. With 20 HTOs, that's ~2,000 HTO reads per cell. Under-sequencing the HTO library specifically can degrade demux quality even when the RNA library is well-sequenced.</p>
+        <p>Our standard is 20,000 total reads per cell (RNA + HTO combined) at 500 cells per sample, yielding 10M reads per sample sequenced on the Element AVITI at ~$1.76/M reads ($17.60/sample). For the SNT-enriched HTO library, ensure adequate read allocation — BioLegend recommends ~100 reads per cell per antibody for TotalSeq-A. With 20 HTOs, that's ~2,000 HTO reads per cell. Under-sequencing the HTO library specifically can degrade demux quality even when the RNA library is well-sequenced.</p>
         <div class="tradeoff">
           <span class="pro">✓ Deeper sequencing → more genes detected per cell</span><br>
           <span class="con">✗ Diminishing returns past ~70% saturation — allocate budget to HTO library too</span>
@@ -1807,7 +1838,7 @@
         <li><strong>Extra washes (3× minimum):</strong> Each additional wash removes a large fraction of ambient HTO. This is the single highest-impact optimization for HTO signal quality.</li>
         <li><strong>Minimize time between staining and loading:</strong> Antibody dissociation increases with time. Move fast from staining → wash → load.</li>
         <li><strong>Use unique dual indexes:</strong> Mitigates index hopping during sequencing. Critical on NovaSeq / patterned flow cells. See the <strong>Sequencing Platforms</strong> tab for more.</li>
-        <li><strong>Optimize SEA enrichment:</strong> The SEA kit amplifies HTO-derived cDNA from the PIPs pellet. Under-amplification leads to low HTO counts and poor signal-to-noise; over-amplification can introduce PCR bias across the 20 HTOs. Follow Illumina's SEA protocol cycling recommendations precisely.</li>
+        <li><strong>Optimize SNT enrichment:</strong> The SNT Enrichment kit amplifies HTO-derived cDNA from the PIPs pellet. Under-amplification leads to low HTO counts and poor signal-to-noise; over-amplification can introduce PCR bias across the 20 HTOs. Follow Illumina's SNT protocol cycling recommendations precisely.</li>
       </ul>
     </div>
   </div>
@@ -1899,7 +1930,7 @@
         <div class="step-num">3</div>
         <div>
           <h4>Compare doublet rate to expected rate</h4>
-          <p>For the T10 kit at recommended loading (5,000 input cells), Illumina specs indicate &lt;8% multiplet rate with &gt;2,000 cells recovered. If your demux tool calls 20%+ doublets, contamination is inflating the number, not real multiplets. With 20 HTOs, ~95% of real doublets should be cross-sample and HTO-visible.</p>
+          <p>At our standard loading (500 cells/sample x 20 samples = 10,000 input cells per T100 14-split reaction), multiplet rates are low. If your demux tool calls 20%+ doublets, contamination is inflating the number, not real multiplets. With 20 HTOs, ~95% of real doublets should be cross-sample and HTO-visible.</p>
         </div>
       </div>
       <div class="step-item">
@@ -2352,7 +2383,7 @@
     <div class="failure-grid">
       <div class="failure-card info">
         <h4>If you're on Illumina</h4>
-        <p>Illumina T10 requires a minimum of 1% PhiX (2% on NovaSeq X Series). Use unique dual indexes — the T10 kit provides 8 index combinations (column 3 of the Illumina Single Cell UD Kit). Do not mix index combinations from the kit with the standalone UD kit in the same lane. Check per-cycle base quality in the barcode/UMI region — Q30 drops here directly increase UMI error rates.</p>
+        <p>We sequence on the Element AVITI (~$1.76/M reads, ~1B reads/day throughput). PhiX spike-in requirements vary by platform (1% on NovaSeq 6000, 2% on NovaSeq X). Use unique dual indexes — the kit provides 8 index combinations (column 3 of the Illumina Single Cell UD Kit). Do not mix index combinations from the kit with the standalone UD kit in the same lane. Check per-cycle base quality in the barcode/UMI region — Q30 drops here directly increase UMI error rates.</p>
         <div class="impact">Budget for PhiX waste and validate barcode/UMI cycle quality</div>
       </div>
 
@@ -2382,6 +2413,625 @@
 
 </div>
 
+<!-- COST CALCULATOR -->
+<div id="costcalc" class="panel">
+  <div class="card blue" style="margin-bottom:20px">
+    <div class="card-label">Project Cost Calculator</div>
+    <h3>iOB scRNA-seq Per-Well Cost Estimator</h3>
+    <p style="margin-top:10px">All pricing validated against LP V4 Proposal (Adrian Pater, 05/08/2026) and iOB sequencing team. Adjust inputs below and costs update in real time. Export to Excel for client-facing deliverables.</p>
+  </div>
+
+  <div class="compare-grid">
+    <!-- INPUTS -->
+    <div class="card purple">
+      <div class="card-label">Project Inputs</div>
+      <h3>Configure Your Experiment</h3>
+      <div style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <label style="font-size:13px;font-weight:500">Total samples (wells)</label>
+          <input type="number" id="cc-samples" value="24" min="1" max="1000" style="width:80px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:IBM Plex Mono;font-size:13px;text-align:right;background:var(--surface);color:var(--text)" oninput="calcCost()">
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <label style="font-size:13px;font-weight:500">Samples per pool (HTOs)</label>
+          <input type="number" id="cc-perpol" value="20" min="1" max="20" style="width:80px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:IBM Plex Mono;font-size:13px;text-align:right;background:var(--surface);color:var(--text)" oninput="calcCost()">
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <label style="font-size:13px;font-weight:500">Cells per sample</label>
+          <input type="number" id="cc-cells" value="500" min="100" max="100000" style="width:80px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:IBM Plex Mono;font-size:13px;text-align:right;background:var(--surface);color:var(--text)" oninput="calcCost()">
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <label style="font-size:13px;font-weight:500">Reads per cell (total)</label>
+          <input type="number" id="cc-reads" value="20000" min="1000" max="200000" step="1000" style="width:80px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:IBM Plex Mono;font-size:13px;text-align:right;background:var(--surface);color:var(--text)" oninput="calcCost()">
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:var(--surface2);border-radius:8px">
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Pools (reactions) needed</div>
+        <div id="cc-pools" style="font-family:IBM Plex Mono;font-size:18px;font-weight:600;color:var(--plum-dark)">2</div>
+      </div>
+    </div>
+
+    <!-- KIT PRICES -->
+    <div class="card green">
+      <div class="card-label">Validated Kit Prices</div>
+      <h3>Source: LP V4 + iOB Team</h3>
+      <div style="margin-top:16px">
+        <div class="spec-row"><span class="spec-label">T100 Kit (14-split)</span><span class="spec-value">$6,720</span></div>
+        <div class="spec-row"><span class="spec-label">  Per reaction (1/14)</span><span class="spec-value" style="color:var(--text-dim)">$480.00</span></div>
+        <div class="spec-row"><span class="spec-label">SNT Enrichment Kit (8 rxns)</span><span class="spec-value">$840</span></div>
+        <div class="spec-row"><span class="spec-label">  Per reaction (1/8)</span><span class="spec-value" style="color:var(--text-dim)">$105.00</span></div>
+        <div class="spec-row"><span class="spec-label">TotalSeq-A Ab (per sample)</span><span class="spec-value">$0.50</span></div>
+        <div class="spec-row"><span class="spec-label">DSP-MeOH Fixation (per sample)</span><span class="spec-value">$6.43</span></div>
+        <div class="spec-row"><span class="spec-label">AVITI sequencing (per M reads)</span><span class="spec-value">$1.76</span></div>
+        <div class="spec-row"><span class="spec-label">Qubit HS dsDNA (per assay)</span><span class="spec-value">$1.95</span></div>
+        <div class="spec-row"><span class="spec-label">TapeStation D1000 (per run)</span><span class="spec-value">$5.47</span></div>
+        <div class="spec-row"><span class="spec-label">Lab consumables (per rxn)</span><span class="spec-value">$25.00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COST BREAKDOWN -->
+  <div class="card cyan" style="margin-bottom:20px">
+    <div class="card-label">Per-Well Cost Breakdown</div>
+    <h3 style="display:flex;justify-content:space-between;align-items:baseline">
+      <span>Itemized Cost Per Sample</span>
+      <span id="cc-total" style="font-family:IBM Plex Mono;font-size:24px;color:var(--teal)">$76.60</span>
+    </h3>
+    <div style="margin-top:16px">
+      <div id="cc-bar" style="display:flex;height:32px;border-radius:6px;overflow:hidden;margin-bottom:16px">
+        <div id="bar-fix" style="background:#2e7d32;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:600" title="DSP Fixation">Fix</div>
+        <div id="bar-ab" style="background:#4caf50;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:600" title="Hashtag Ab">Ab</div>
+        <div id="bar-lib" style="background:#552A53;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:600" title="Library Prep">Lib</div>
+        <div id="bar-snt" style="background:#8C4F89;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:600" title="SNT Enrichment">SNT</div>
+        <div id="bar-seq" style="background:#0d7377;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:600" title="Sequencing">Seq</div>
+        <div id="bar-qc" style="background:#90a4ae;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:600" title="QC + Consumables">QC</div>
+      </div>
+      <div id="cc-items" style="font-size:13px"></div>
+    </div>
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text-dim);margin-bottom:2px">Pre-Sequencing</div>
+        <div id="cc-preseq" style="font-family:IBM Plex Mono;font-size:18px;font-weight:600;color:var(--green)">$55.68</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text-dim);margin-bottom:2px">Sequencing</div>
+        <div id="cc-seqonly" style="font-family:IBM Plex Mono;font-size:18px;font-weight:600;color:var(--teal)">$17.60</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:10px;color:var(--text-dim);margin-bottom:2px">QC + Consumables</div>
+        <div id="cc-qccons" style="font-family:IBM Plex Mono;font-size:18px;font-weight:600;color:#607d8b">$3.32</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT TOTAL -->
+  <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,#0d737710,#AE5CAA10);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">TOTAL PROJECT COST</div>
+        <div id="cc-projtotal" style="font-family:IBM Plex Mono;font-size:28px;font-weight:700;color:var(--plum-dark)">$1,838</div>
+        <div id="cc-projdetail" style="font-size:11px;color:var(--text-dim);margin-top:4px">24 samples x 2 pools x $76.60/well</div>
+      </div>
+      <button onclick="exportXLSX()" style="padding:12px 24px;background:var(--plum-dark);color:white;border:none;border-radius:8px;font-family:Montserrat;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#8C4F89'" onmouseout="this.style.background='var(--plum-dark)'">Export to Excel</button>
+    </div>
+  </div>
+
+  <!-- SCENARIO TABLE -->
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--blue)">Quick Reference</div>
+    <h3>Cost per well at different scales</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:14px">At 500 cells/sample, 20K reads/cell. Costs drop as pool utilization improves.</p>
+    <div style="overflow-x:auto">
+      <table id="cc-scenario" style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:8px;color:var(--text-dim);font-weight:600">Samples</th>
+            <th style="text-align:center;padding:8px;font-weight:600">10</th>
+            <th style="text-align:center;padding:8px;font-weight:600">20</th>
+            <th style="text-align:center;padding:8px;font-weight:600">24</th>
+            <th style="text-align:center;padding:8px;font-weight:600">40</th>
+            <th style="text-align:center;padding:8px;font-weight:600">60</th>
+            <th style="text-align:center;padding:8px;font-weight:600">80</th>
+            <th style="text-align:center;padding:8px;font-weight:600">100</th>
+            <th style="text-align:center;padding:8px;font-weight:600">160</th>
+          </tr>
+        </thead>
+        <tbody id="cc-scenario-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div id="timeline" class="panel">
+  <div class="card purple" style="margin-bottom:20px">
+    <div class="card-label">Workflow Timeline</div>
+    <h3>Illumina T100 (14-split) + HTO — Step-by-Step Duration</h3>
+    <p style="margin-top:10px">Time estimates from iOB process model. Total time includes incubations; hands-on time (HoT) is active bench work. Automation status reflects current Fluent integration.</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card cyan" style="text-align:center">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">HTO Hashing (Live Cells)</div>
+      <div style="font-family:IBM Plex Mono;font-size:22px;font-weight:700;color:var(--teal)">4h 13m</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px">~2h 8m hands-on</div>
+    </div>
+    <div class="card purple" style="text-align:center">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Library Prep + HTO (Parallel)</div>
+      <div style="font-family:IBM Plex Mono;font-size:22px;font-weight:700;color:var(--mauve)">14h 30m</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px">~7h 15m hands-on</div>
+    </div>
+    <div class="card green" style="text-align:center">
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px">Total (Parallel Processing)</div>
+      <div style="font-family:IBM Plex Mono;font-size:22px;font-weight:700;color:var(--green)">18h 43m</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px">~9h 23m hands-on</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--blue)">Actual Process Duration (Our Workflow)</div>
+    <h3>Real-world timing from iOB runs</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:14px">Based on observed run times including setup between steps. Current estimated total: ~20h 19m.</p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-dim);font-weight:600">Step</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Duration</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Rolling Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 12px">Capture and Lysis</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">2h 10m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">2h 10m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:8px 12px">Break emulsions + Day 1 setup</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">1h 30m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">3h 40m</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 12px">PIP wash to cDNA</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">5h 40m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">9h 20m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:8px 12px">QC template retrieval + amplification</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">1h 12m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">10h 32m</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 12px">Clean QC product</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">0h 40m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">11h 12m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:8px 12px">Day 2 setup</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">0h 30m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">11h 42m</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 12px">cDNA to library</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">3h 24m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">15h 06m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:8px 12px">QC (total, estimated)</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">1h 00m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">16h 06m</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 12px">HTO hashing (live cells)</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">4h 13m</td><td style="text-align:center;padding:8px;font-family:IBM Plex Mono">20h 19m</td></tr>
+          <tr style="border-top:2px solid var(--plum-dark);background:linear-gradient(135deg,#AE5CAA10,#0d737710)">
+            <td style="padding:10px 12px;font-weight:700;color:var(--plum-dark)">Total Estimated Time</td>
+            <td style="text-align:center;padding:10px 8px;font-family:IBM Plex Mono;font-weight:700;color:var(--plum-dark)">20h 19m</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DETAILED LIBRARY PREP STEPS -->
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--mauve)">Illumina Estimated Durations</div>
+    <h3>Library Prep T100 — Detailed Steps</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:14px">As estimated by Illumina/Fluent. Total: 14h 30m (7h 15m hands-on).</p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-dim);font-weight:600">Step</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Total Time</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Hands-On</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Reagent Preparation</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center;font-family:IBM Plex Mono">120m</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">General Cell Preparation</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Capture and Lysis</td><td style="text-align:center;font-family:IBM Plex Mono">100m</td><td style="text-align:center;font-family:IBM Plex Mono">10m</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Breaking Emulsions</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Washing PIPs (1X Buffer)</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Reverse Transcription</td><td style="text-align:center;font-family:IBM Plex Mono">150m</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Washing PIPs (0.5X Buffer)</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">cDNA WTA</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">cDNA Isolation + Bead Purification</td><td style="text-align:center;font-family:IBM Plex Mono">50m</td><td style="text-align:center;font-family:IBM Plex Mono">50m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">cDNA QC + Quantification</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">QC PCR + Bead Purification</td><td style="text-align:center;font-family:IBM Plex Mono">110m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Fragmentation, End Repair, A-Tailing</td><td style="text-align:center;font-family:IBM Plex Mono">50m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Adapter Ligation + Cleanup</td><td style="text-align:center;font-family:IBM Plex Mono">50m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Sample Index PCR + Cleanup</td><td style="text-align:center;font-family:IBM Plex Mono">90m</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Post Library QC</td><td style="text-align:center;font-family:IBM Plex Mono">25m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-top:2px solid var(--plum-dark);background:linear-gradient(135deg,#AE5CAA10,#0d737710)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--plum-dark)">Total Library Prep</td>
+            <td style="text-align:center;font-family:IBM Plex Mono;font-weight:700;color:var(--plum-dark)">14h 30m</td>
+            <td style="text-align:center;font-family:IBM Plex Mono;font-weight:700;color:var(--plum-dark)">7h 15m</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SNT/HTO PREP -->
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--teal)">SNT HTO Library Prep</div>
+    <h3>SNT Enrichment Duration (runs parallel with genomic library)</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:14px">Total: 4h 45m (3h 25m hands-on). Can run in parallel with genomic library prep to save wall-clock time.</p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-dim);font-weight:600">Step</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Total Time</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Washing PIPs (0.5X Buffer)</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">SNT Amplification</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">SNT cDNA Isolation</td><td style="text-align:center;font-family:IBM Plex Mono">20m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Magnetic Bead Purification</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">SNT Sample Index PCR</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Post-PCR Cleanup</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center"><span class="tag detectable">Automated</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px">Qubit Quantification</td><td style="text-align:center;font-family:IBM Plex Mono">5m</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px">Fragment Size Analysis</td><td style="text-align:center;font-family:IBM Plex Mono">20m</td><td style="text-align:center"><span class="tag invisible" style="background:#e67e2218;color:var(--orange)">Manual</span></td></tr>
+          <tr style="border-top:2px solid var(--teal);background:linear-gradient(135deg,#0d737710,#AE5CAA10)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--teal)">Total SNT Prep</td>
+            <td style="text-align:center;font-family:IBM Plex Mono;font-weight:700;color:var(--teal)">4h 45m</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- HASHING DETAIL -->
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--green)">HTO Hashing (Live Cells)</div>
+    <h3>Antibody Hashing Step-by-Step</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:14px">Current total: ~4h 13m (~2h 8m hands-on). From iOB process model.</p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-dim);font-weight:600">Stage</th>
+            <th style="text-align:left;padding:8px;font-weight:600">Step</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Duration</th>
+            <th style="text-align:center;padding:8px;font-weight:600">Hands-On</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;color:var(--text-dim)">Prep</td><td>Do count</td><td style="text-align:center;font-family:IBM Plex Mono">10m</td><td style="text-align:center;font-family:IBM Plex Mono">5m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px;color:var(--text-dim)">Prep</td><td>Process count</td><td style="text-align:center;font-family:IBM Plex Mono">10m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;color:var(--text-dim)">Split</td><td>Split sample for flow + library prep</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px;color:var(--text-dim)">Hash</td><td>Spin + resuspend</td><td style="text-align:center;font-family:IBM Plex Mono">20m</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;color:var(--text-dim)">Hash</td><td>Prepare hashing Ab solutions</td><td style="text-align:center;font-family:IBM Plex Mono">18m</td><td style="text-align:center;font-family:IBM Plex Mono">18m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px;color:var(--text-dim)">Hash</td><td>Hash label (incubation)</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center;font-family:IBM Plex Mono">-</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;color:var(--text-dim)">Hash</td><td>Hash wash (3x)</td><td style="text-align:center;font-family:IBM Plex Mono">60m</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px;color:var(--text-dim)">Hash</td><td>Count after wash</td><td style="text-align:center;font-family:IBM Plex Mono">30m</td><td style="text-align:center;font-family:IBM Plex Mono">18m</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;color:var(--text-dim)">Hash</td><td>Combine samples</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:6px 12px;color:var(--text-dim)">Lib prep</td><td>Count + resuspend to target conc</td><td style="text-align:center;font-family:IBM Plex Mono">15m</td><td style="text-align:center;font-family:IBM Plex Mono">13m</td></tr>
+          <tr style="border-top:2px solid var(--green);background:linear-gradient(135deg,#2e7d3210,#0d737710)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--green)" colspan="2">Total Hashing</td>
+            <td style="text-align:center;font-family:IBM Plex Mono;font-weight:700;color:var(--green)">~4h 13m</td>
+            <td style="text-align:center;font-family:IBM Plex Mono;font-weight:700;color:var(--green)">~2h 8m</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="key-insight" style="margin-bottom:20px">
+    <strong>Key insight:</strong> When running genomic + HTO libraries in parallel (recommended), total wall-clock time is ~18h 43m. Running them sequentially adds ~4h 45m for a total of ~23h 28m. Our actual observed process time is ~20h 19m including hashing, which is between the two because of setup transitions between stages.
+  </div>
+</div>
+
+<!-- DATA PIPELINE -->
+<div id="datapipeline" class="panel">
+
+  <div class="card blue" style="margin-bottom:20px">
+    <div class="card-label">Data Pipeline Architecture</div>
+    <h3>From Sequencer Output to Biological Insight</h3>
+    <p style="margin-top:10px">Two architectures shown: the current BaseSpace-dependent workflow and a proposed self-hosted AWS pipeline. Each node explained — what it does, why it matters, and where the data goes next.</p>
+  </div>
+
+  <!-- ═══ CURRENT ARCHITECTURE ═══ -->
+  <div class="card red" style="margin-bottom:20px">
+    <div class="card-label">Current Architecture</div>
+    <h3>BaseSpace-Dependent Workflow</h3>
+    <p style="margin-top:10px;margin-bottom:16px;font-size:13px;color:var(--text-dim)">Data leaves the AVITI, gets staged to AWS, then uploaded to Illumina's BaseSpace cloud for DRAGEN processing. Results are downloaded back to AWS. Three cloud hops, two vendors, and a dependency on Illumina's infrastructure for every run.</p>
+
+    <div class="pipeline-flow" style="flex-wrap:wrap;gap:4px 0">
+      <div class="pf-step" style="background:#d32f2f10;border-bottom:2px solid var(--red)"><div class="pf-icon">🧬</div><div class="pf-name">AVITI Sequencer</div><div class="pf-detail">Raw BCL files</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step"><div class="pf-icon">☁️</div><div class="pf-name">AWS S3 (Staging)</div><div class="pf-detail">Raw data landing zone</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step" style="background:#e67e2210;border-bottom:2px solid var(--orange)"><div class="pf-icon">🔄</div><div class="pf-name">Upload to BaseSpace</div><div class="pf-detail">Data transfer to Illumina</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step" style="background:#e67e2210;border-bottom:2px solid var(--orange)"><div class="pf-icon">⚙️</div><div class="pf-name">DRAGEN SC RNA</div><div class="pf-detail">Alignment + cell calling</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step" style="background:#e67e2210;border-bottom:2px solid var(--orange)"><div class="pf-icon">📥</div><div class="pf-name">Download Results</div><div class="pf-detail">Count matrices back to AWS</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step"><div class="pf-icon">📊</div><div class="pf-name">Analysis Scripts</div><div class="pf-detail">Demux, QC, clustering</div></div>
+    </div>
+
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div style="padding:10px;background:#d32f2f08;border-radius:8px;border-left:3px solid var(--red)">
+        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:4px">Vendor Lock-in</div>
+        <div style="font-size:11.5px;color:var(--text-dim)">DRAGEN is proprietary — can't run it on your own infrastructure without Illumina</div>
+      </div>
+      <div style="padding:10px;background:#d32f2f08;border-radius:8px;border-left:3px solid var(--red)">
+        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:4px">Triple Data Transfer</div>
+        <div style="font-size:11.5px;color:var(--text-dim)">AVITI → AWS → BaseSpace → AWS. Redundant transfers, egress costs, and latency</div>
+      </div>
+      <div style="padding:10px;background:#d32f2f08;border-radius:8px;border-left:3px solid var(--red)">
+        <div style="font-size:11px;font-weight:600;color:var(--red);margin-bottom:4px">Per-Run Compute Cost</div>
+        <div style="font-size:11.5px;color:var(--text-dim)">BaseSpace charges per analysis run on top of sequencing reagent costs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROPOSED ARCHITECTURE ═══ -->
+  <div class="card green" style="margin-bottom:20px">
+    <div class="card-label">Proposed Architecture</div>
+    <h3>Self-Hosted AWS Pipeline (Snakemake)</h3>
+    <p style="margin-top:10px;margin-bottom:16px;font-size:13px;color:var(--text-dim)">All processing stays on your AWS infrastructure. Open-source tools replace DRAGEN. Data moves once — from sequencer to S3 — and everything runs from there. The Snakemake workflow orchestrator manages step dependencies, parallelization, and retries.</p>
+
+    <div class="pipeline-flow" style="flex-wrap:wrap;gap:4px 0">
+      <div class="pf-step" style="background:#2e7d3210;border-bottom:2px solid var(--green)"><div class="pf-icon">🧬</div><div class="pf-name">AVITI Sequencer</div><div class="pf-detail">Raw BCL files</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step" style="background:#2e7d3210;border-bottom:2px solid var(--green)"><div class="pf-icon">☁️</div><div class="pf-name">AWS S3</div><div class="pf-detail">Single data store</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step highlight"><div class="pf-icon">🐍</div><div class="pf-name">Snakemake</div><div class="pf-detail">Orchestrates all steps</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step"><div class="pf-icon">📊</div><div class="pf-name">Count Matrices</div><div class="pf-detail">Cell x gene + HTO</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step"><div class="pf-icon">🔬</div><div class="pf-name">Downstream Analysis</div><div class="pf-detail">Clustering, DE, annotation</div></div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-step" style="background:#0d737710;border-bottom:2px solid var(--teal)"><div class="pf-icon">🤖</div><div class="pf-name">RL Algorithm</div><div class="pf-detail">Feature extraction → model</div></div>
+    </div>
+
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div style="padding:10px;background:#2e7d3208;border-radius:8px;border-left:3px solid var(--green)">
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:4px">No Vendor Dependency</div>
+        <div style="font-size:11.5px;color:var(--text-dim)">All open-source tools — STARsolo, deMULTIplex2, Scanpy. You own the entire stack</div>
+      </div>
+      <div style="padding:10px;background:#2e7d3208;border-radius:8px;border-left:3px solid var(--green)">
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:4px">Single Data Landing</div>
+        <div style="font-size:11.5px;color:var(--text-dim)">AVITI → S3 once. All compute stays within your AWS VPC</div>
+      </div>
+      <div style="padding:10px;background:#2e7d3208;border-radius:8px;border-left:3px solid var(--green)">
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:4px">Direct RL Integration</div>
+        <div style="font-size:11.5px;color:var(--text-dim)">Processed data stays in S3/EFS — no download step before feeding into your models</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PIPELINE NODES — DETAILED ═══ -->
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--plum-dark)">Pipeline Nodes</div>
+    <h3>What each step does and why it matters</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:16px">Ordered upstream → downstream. Everything inside the dashed box is what Snakemake would orchestrate.</p>
+
+    <!-- Node 1: BCL → FASTQ -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--plum-dark);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--plum-dark)">1. BCL → FASTQ Conversion</h4>
+        <span class="tag detectable" style="font-size:10px">bcl-convert / bases2fastq</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> The AVITI sequencer produces raw BCL (Base Call) files — binary signal data indexed by tile, cycle, and lane. This step converts those into FASTQ files, which are human-readable text files containing the actual nucleotide sequences and quality scores for each read. It also separates reads by their sample index (i7/i5), so each library (RNA + HTO) gets its own set of FASTQs.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> Everything downstream needs FASTQ input. If index demultiplexing goes wrong here, reads from different pools bleed into each other — unrecoverable. For AVITI specifically, Element provides <code style="font-family:IBM Plex Mono;font-size:11px;background:var(--surface);padding:2px 5px;border-radius:3px">bases2fastq</code> which handles their native output format. Alternatively, Illumina's <code style="font-family:IBM Plex Mono;font-size:11px;background:var(--surface);padding:2px 5px;border-radius:3px">bcl-convert</code> works if the data is in standard BCL format.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> Paired FASTQ files (R1: cell barcode + UMI, R2: cDNA insert) per library per pool. Plus index reads (I1/I2) for sample-level demux.</p>
+    </div>
+
+    <!-- Node 2: Barcode + UMI Extraction -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--mauve);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--mauve)">2. Cell Barcode + UMI Extraction</h4>
+        <span class="tag detectable" style="font-size:10px">STARsolo</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Read 1 (45 cycles) contains the cell barcode and UMI packed in a specific layout defined by the PIPseq chemistry. This step parses R1 to extract the cell barcode (which identifies which partition/cell) and the UMI (which identifies the original mRNA molecule), then error-corrects the barcode against a known whitelist of valid barcodes.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> This is the hardest step to replicate outside DRAGEN. PIPseq uses a different barcode geometry than 10x Chromium — you need the correct PIPseq barcode whitelist file from Illumina and must configure STARsolo with the exact barcode position layout. If this is wrong, you get zero valid cells. This is the step that needs to be validated against a known DRAGEN run.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--red)">Key risk:</strong> The PIPseq barcode whitelist and geometry are not publicly documented the way 10x's are. You need to obtain these from Illumina or reverse-engineer them from DRAGEN output. Once you have them, STARsolo handles the rest.</p>
+    </div>
+
+    <!-- Node 3: Alignment -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--teal);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--teal)">3. Read Alignment</h4>
+        <span class="tag detectable" style="font-size:10px">STAR / STARsolo</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Takes the cDNA insert (Read 2) and maps it to a reference genome (e.g., GRCh38 for human, GRCm39 for mouse). Each read gets assigned to a gene (or marked as unmapped/ambiguous). STARsolo does barcode extraction and alignment in a single step, which is why it's the preferred tool — no separate barcode parsing needed.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> Alignment quality directly determines the accuracy of gene expression counts. Poor mapping (wrong genome build, missing gene annotations, or low-quality reads) means lost signal. STAR is splice-aware, meaning it correctly handles reads spanning exon-exon junctions — essential for RNA-seq.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> BAM file with cell barcode, UMI, and gene assignment tags per read.</p>
+    </div>
+
+    <!-- Node 4: Cell Calling -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--green);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--green)">4. Cell Calling (Real vs. Empty)</h4>
+        <span class="tag detectable" style="font-size:10px">EmptyDrops / STARsolo knee</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Not every barcode represents a real cell — most partitions are empty, containing only ambient RNA. Cell calling algorithms distinguish real cell-containing partitions from empty ones by looking at the distribution of UMI counts per barcode. The classic approach is the "knee plot" — barcodes are ranked by total UMIs, and there's a sharp drop-off between real cells and empty droplets. EmptyDrops uses a statistical test against the ambient profile for borderline cases.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> Aggressive cell calling (too many "cells") means you include empty droplets that are pure ambient RNA — these become noise in clustering. Conservative calling (too few) means you lose real but low-quality cells. At 500 cells/sample with 20 hashtags, you expect ~10,000 total input cells per reaction, so you should recover somewhere in that range.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> A filtered list of valid cell barcodes — everything past this point only includes "real" cells.</p>
+    </div>
+
+    <!-- Node 5: UMI Deduplication + Count Matrix -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--blue);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--blue)">5. UMI Deduplication + Count Matrix</h4>
+        <span class="tag detectable" style="font-size:10px">STARsolo / umi_tools</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> PCR amplification creates many copies of each original mRNA molecule. UMI deduplication collapses reads that share the same cell barcode + UMI + gene into a single count, so each molecule is counted exactly once. The result is a count matrix: rows = genes (~20,000-30,000), columns = cells, values = unique molecule counts.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> Without deduplication, highly-amplified molecules would appear more abundant than they actually are, distorting expression measurements. The count matrix is the fundamental data structure — everything downstream (clustering, differential expression, RL features) starts from this matrix.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> Two count matrices — <strong>RNA</strong> (gene expression, stored as sparse matrix in MEX or H5AD format) and <strong>HTO</strong> (hashtag antibody counts per cell). Both are needed for the next step.</p>
+    </div>
+
+    <!-- Node 6: HTO Demultiplexing -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--orange);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--orange)">6. HTO Demultiplexing</h4>
+        <span class="tag partial" style="font-size:10px">deMULTIplex2 + hashedDrops</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Each cell has counts for all 20 hashtag antibodies. HTO demux assigns each cell to its sample-of-origin by determining which HTO has dominant signal. Cells with two strong HTOs are flagged as cross-sample doublets. Cells with no clear HTO signal are marked as "negative" (possibly empty droplets or failed staining). deMULTIplex2 is the primary tool (robust to noise with 20 HTOs); hashedDrops is used as a secondary validator.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> This is what makes multiplexing work — without it, you can't tell which of the 20 samples each cell came from. It's also your primary doublet detection mechanism (see the Doublet Taxonomy tab). Quality of this step depends heavily on HTO staining quality, washing stringency, and sequencing depth of the HTO library.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> Per-cell sample assignment (1 of 20 samples, doublet, or negative). The RNA count matrix is now split into 20 per-sample matrices.</p>
+    </div>
+
+    <!-- Node 7: QC + Filtering -->
+    <div style="margin-bottom:16px;border-left:3px solid #607d8b;padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:#607d8b">7. Quality Control + Filtering</h4>
+        <span class="tag detectable" style="font-size:10px">Scanpy / Seurat</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Removes low-quality cells (too few genes, too few UMIs, too high mitochondrial %), removes doublets flagged by transcriptome-based tools (DoubletFinder, scDblFinder), and corrects for ambient RNA contamination using SoupX or CellBender. Also filters out genes detected in too few cells.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> Garbage in, garbage out. Low-quality cells distort clustering and make downstream differential expression unreliable. Ambient RNA correction is especially important for HTO-multiplexed data where ambient signal from all 20 samples is present in every droplet.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> A clean AnnData object (H5AD file) — cells x genes, with metadata (sample assignment, QC metrics, doublet scores).</p>
+    </div>
+
+    <!-- Node 8: Normalization + Dimensionality Reduction -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--mauve);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--mauve)">8. Normalization + Dimensionality Reduction</h4>
+        <span class="tag detectable" style="font-size:10px">Scanpy / scVI</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Raw counts are normalized (library-size correction + log transformation, or model-based via scVI), highly variable genes are selected (~2,000-5,000), PCA reduces the ~20,000-gene space to ~30-50 principal components, and a neighbor graph is built in PC space for clustering and UMAP visualization.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> Raw counts are noisy and sparse — cells have different total counts (sequencing depth), and most genes are zeros. Normalization makes cells comparable. PCA captures the dominant sources of variation. The neighbor graph defines which cells are "similar" — this is the foundation of both clustering and UMAP.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> AnnData with PCA embeddings, UMAP coordinates, and neighbor graph.</p>
+    </div>
+
+    <!-- Node 9: Clustering + Annotation -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--teal);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--teal)">9. Clustering + Cell Type Annotation</h4>
+        <span class="tag detectable" style="font-size:10px">Leiden / CellTypist / manual markers</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Community detection algorithms (Leiden or Louvain) partition the neighbor graph into clusters of transcriptionally similar cells. Each cluster is then annotated with a cell type identity — either manually via known marker genes, or automatically using reference-based tools like CellTypist or scType.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> This is where biology emerges. Clusters correspond to cell types, cell states, or developmental stages. For iOB's biomaterial screening, this is where you see whether a treatment condition changed the cellular composition — e.g., shifted the ratio of progenitor cells to differentiated cells, or activated a stress response program.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> Per-cell cluster labels and cell type annotations. Differential expression results between clusters. UMAP visualizations colored by cluster, sample, condition.</p>
+    </div>
+
+    <!-- Node 10: Differential Expression + Feature Extraction -->
+    <div style="margin-bottom:16px;border-left:3px solid var(--green);padding:14px 16px;background:var(--surface2);border-radius:0 8px 8px 0">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4 style="font-size:14px;font-weight:600;color:var(--green)">10. Differential Expression + Feature Extraction</h4>
+        <span class="tag detectable" style="font-size:10px">Scanpy rank_genes_groups / pseudobulk DE</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>What it does:</strong> Compares gene expression between conditions (e.g., treated vs. control, biomaterial A vs. biomaterial B) within each cell type. Can be done at single-cell level (Wilcoxon, t-test) or pseudobulk level (aggregate cells per sample, then use DESeq2/edgeR — more statistically rigorous for replicated experiments). Also extracts quantitative features: cell type proportions, pathway scores, gene program activity.</p>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.6"><strong>Why it matters:</strong> This is the answer to "what did this treatment do?" For biomaterial screening, you're comparing 20+ conditions simultaneously — this step produces the ranked list of genes and pathways that distinguish each condition. These features are also what feed into the RL model.</p>
+      <p style="font-size:12.5px;margin-top:8px;line-height:1.6"><strong style="color:var(--teal)">Output:</strong> DE gene tables per cell type per comparison. Feature matrices (samples x features) ready for modeling.</p>
+    </div>
+  </div>
+
+  <!-- ═══ RL INTEGRATION ═══ -->
+  <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,#0d737710,#AE5CAA10);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--teal)">Downstream: RL Integration</div>
+    <h3>From Count Matrices to Reinforcement Learning</h3>
+    <p style="font-size:13px;color:var(--text-dim);margin-top:10px;margin-bottom:16px">The scRNA-seq pipeline produces structured, quantitative data that can serve as the observation/state space and reward signal for a reinforcement learning system optimizing experimental conditions.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:var(--surface);border-radius:10px;padding:16px;border:1px solid var(--border)">
+        <h4 style="font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px">State / Observation Space</h4>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.6">What the RL agent "sees" after each experiment round:</p>
+        <div style="margin-top:10px">
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>Cell type proportions</strong> — % of each cell type per condition (e.g., 40% neurons, 30% astrocytes, 30% progenitors)</div>
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>Gene program scores</strong> — pathway-level activity (differentiation score, proliferation score, stress response)</div>
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>DE signatures</strong> — top N differentially expressed genes per condition, magnitude + direction</div>
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>Pseudobulk profiles</strong> — aggregated expression vectors per sample, suitable for embedding</div>
+          <div style="padding:6px 0;font-size:12px"><strong>QC metrics</strong> — cell recovery, doublet rate, mitochondrial %, ambient contamination level</div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface);border-radius:10px;padding:16px;border:1px solid var(--border)">
+        <h4 style="font-size:13px;font-weight:600;color:var(--mauve);margin-bottom:10px">Action Space + Reward</h4>
+        <p style="font-size:12px;color:var(--text-dim);line-height:1.6">What the RL agent controls and optimizes for:</p>
+        <div style="margin-top:10px">
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>Actions (experimental parameters)</strong> — biomaterial composition, growth factor concentrations, culture duration, coating substrate, media formulation</div>
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>Reward signal</strong> — defined by your biological objective, e.g., maximize % target cell type, minimize off-target differentiation, maximize expression of functional maturity markers</div>
+          <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>Exploration strategy</strong> — balance between exploiting known-good conditions and testing novel combinations across the 20-sample multiplexed pool</div>
+          <div style="padding:6px 0;font-size:12px"><strong>Episode</strong> — one experimental round (culture → harvest → scRNA-seq → analyze → design next round). Each episode produces 20 data points (one per sample/condition in the pool)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="key-insight" style="margin-top:16px">
+      <strong>Data flow:</strong> AnnData (H5AD) from step 10 → Python feature extraction script → feature matrix (CSV or Parquet, samples x features) → RL environment state. The 20-sample multiplexing is powerful here: each "episode" produces 20 observations in parallel, dramatically improving sample efficiency for the RL agent compared to running conditions one at a time.
+    </div>
+  </div>
+
+  <!-- ═══ SNAKEMAKE PIPELINE STRUCTURE ═══ -->
+  <div class="card" style="margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px">
+    <div class="card-label" style="color:var(--blue)">Snakemake Pipeline Structure</div>
+    <h3>What the Snakemake workflow should contain</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:6px;margin-bottom:16px">Snakemake is a Python-based workflow manager. Each "rule" defines an input, output, and shell command. Snakemake figures out the dependency graph and runs steps in parallel where possible.</p>
+
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:8px 12px;color:var(--text-dim);font-weight:600;width:25%">Rule</th>
+            <th style="text-align:left;padding:8px;font-weight:600;width:20%">Tool</th>
+            <th style="text-align:left;padding:8px;font-weight:600;width:30%">What It Does</th>
+            <th style="text-align:left;padding:8px;font-weight:600;width:25%">Compute</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">bcl_to_fastq</td>
+            <td style="padding:8px">bases2fastq (Element)</td>
+            <td style="padding:8px;color:var(--text-dim)">Convert AVITI BCL → FASTQ, demux by sample index</td>
+            <td style="padding:8px;color:var(--text-dim)">CPU-heavy, ~30 min</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">star_align</td>
+            <td style="padding:8px">STARsolo</td>
+            <td style="padding:8px;color:var(--text-dim)">Barcode extraction + alignment + cell calling + count matrix in one step</td>
+            <td style="padding:8px;color:var(--text-dim)">RAM-heavy (~32GB), ~1-2 hr per pool</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">hto_count</td>
+            <td style="padding:8px">CITE-seq-Count / STARsolo</td>
+            <td style="padding:8px;color:var(--text-dim)">Generate HTO count matrix from hashtag library FASTQs</td>
+            <td style="padding:8px;color:var(--text-dim)">Light, ~15 min</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">demux_hto</td>
+            <td style="padding:8px">deMULTIplex2 (R)</td>
+            <td style="padding:8px;color:var(--text-dim)">Assign cells to samples using HTO signal; flag doublets + negatives</td>
+            <td style="padding:8px;color:var(--text-dim)">Light, ~5 min</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">qc_filter</td>
+            <td style="padding:8px">Scanpy (Python)</td>
+            <td style="padding:8px;color:var(--text-dim)">Remove low-quality cells, doublets (scDblFinder), ambient RNA (SoupX)</td>
+            <td style="padding:8px;color:var(--text-dim)">Light, ~10 min</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">normalize_embed</td>
+            <td style="padding:8px">Scanpy / scVI</td>
+            <td style="padding:8px;color:var(--text-dim)">Normalize, HVG selection, PCA, neighbor graph, UMAP, Leiden clustering</td>
+            <td style="padding:8px;color:var(--text-dim)">Medium, ~20 min (GPU for scVI)</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">annotate_de</td>
+            <td style="padding:8px">Scanpy / CellTypist</td>
+            <td style="padding:8px;color:var(--text-dim)">Cell type annotation + differential expression between conditions</td>
+            <td style="padding:8px;color:var(--text-dim)">Light-medium, ~15 min</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:var(--surface2)">
+            <td style="padding:8px 12px;font-family:IBM Plex Mono;font-size:11px;color:var(--plum-dark)">extract_features</td>
+            <td style="padding:8px">Custom Python</td>
+            <td style="padding:8px;color:var(--text-dim)">Build feature matrix for RL: cell type proportions, pathway scores, DE summaries</td>
+            <td style="padding:8px;color:var(--text-dim)">Light, ~5 min</td>
+          </tr>
+          <tr style="border-top:2px solid var(--plum-dark);background:linear-gradient(135deg,#AE5CAA10,#0d737710)">
+            <td style="padding:8px 12px;font-weight:700;color:var(--plum-dark)" colspan="2">Total Pipeline Runtime</td>
+            <td style="padding:8px;font-weight:700;color:var(--plum-dark)" colspan="2">~2-3 hours per pool (end-to-end, automated)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VALIDATION NOTE -->
+  <div class="key-insight" style="margin-bottom:20px">
+    <strong>Critical validation step:</strong> Before switching from BaseSpace/DRAGEN to the self-hosted pipeline, run both on the same dataset and compare outputs. The key comparison is the filtered count matrix — if cell counts and gene expression correlations (Pearson r > 0.99) match between DRAGEN and STARsolo, the pipeline is validated. The HTO demux step is already independent of DRAGEN (deMULTIplex2 is the same tool in both architectures), so that doesn't need separate validation.
+  </div>
+</div>
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script>
 function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -2396,6 +3046,160 @@ function showPanel(id) {
   // Scroll to top
   window.scrollTo(0, 0);
 }
+
+// ── COST CALCULATOR ──
+const KIT = {t100:6720, t100rxns:14, snt:840, sntRxns:8, ab:0.50, dsp:6.43, aviti:1.76, qubit:1.95, tape:5.47, cons:25};
+
+function calcCost() {
+  const S = Math.max(1, +document.getElementById('cc-samples').value || 24);
+  const PP = Math.max(1, Math.min(20, +document.getElementById('cc-perpol').value || 20));
+  const C = Math.max(1, +document.getElementById('cc-cells').value || 500);
+  const R = Math.max(1, +document.getElementById('cc-reads').value || 20000);
+  const pools = Math.ceil(S / PP);
+  const readsPerSample = C * R;
+  const seqPerSample = KIT.aviti * readsPerSample / 1e6;
+
+  const items = [
+    {name:'DSP-MeOH Fixation', cost:KIT.dsp, cat:'fix'},
+    {name:'TotalSeq-A Hashtag Ab', cost:KIT.ab, cat:'ab'},
+    {name:'T100 Library Prep (14-split)', cost:(KIT.t100/KIT.t100rxns)*pools/S, cat:'lib'},
+    {name:'SNT Enrichment (HTO library)', cost:(KIT.snt/KIT.sntRxns)*pools/S, cat:'snt'},
+    {name:'AVITI Sequencing', cost:seqPerSample, cat:'seq'},
+    {name:'Qubit QC (2/rxn)', cost:(KIT.qubit*2*pools)/S, cat:'qc'},
+    {name:'TapeStation QC (2/rxn)', cost:(KIT.tape*2*pools)/S, cat:'qc'},
+    {name:'Lab Consumables', cost:(KIT.cons*pools)/S, cat:'qc'},
+  ];
+  const total = items.reduce((s,i)=>s+i.cost,0);
+  const preSeq = items.slice(0,4).reduce((s,i)=>s+i.cost,0);
+  const seqOnly = items[4].cost;
+  const qcCons = items.slice(5).reduce((s,i)=>s+i.cost,0);
+
+  document.getElementById('cc-pools').textContent = pools;
+  document.getElementById('cc-total').textContent = '$'+total.toFixed(2);
+  document.getElementById('cc-preseq').textContent = '$'+preSeq.toFixed(2);
+  document.getElementById('cc-seqonly').textContent = '$'+seqOnly.toFixed(2);
+  document.getElementById('cc-qccons').textContent = '$'+qcCons.toFixed(2);
+  document.getElementById('cc-projtotal').textContent = '$'+Math.round(total*S).toLocaleString();
+  document.getElementById('cc-projdetail').textContent = S+' samples x '+pools+' pool'+(pools>1?'s':'')+' x $'+total.toFixed(2)+'/well';
+
+  // Bar chart
+  const colors = {fix:'#2e7d32',ab:'#4caf50',lib:'#552A53',snt:'#8C4F89',seq:'#0d7377',qc:'#90a4ae'};
+  const catTotals = {};
+  items.forEach(i=>{catTotals[i.cat]=(catTotals[i.cat]||0)+i.cost});
+  ['fix','ab','lib','snt','seq','qc'].forEach(cat=>{
+    const el = document.getElementById('bar-'+cat);
+    if(el) el.style.width = ((catTotals[cat]||0)/total*100)+'%';
+  });
+
+  // Items list
+  const html = items.map(i=>'<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>'+i.name+'</span><span style="font-family:IBM Plex Mono;font-weight:500">$'+i.cost.toFixed(2)+'</span></div>').join('');
+  document.getElementById('cc-items').innerHTML = html;
+
+  // Scenario table
+  const counts = [10,20,24,40,60,80,100,160];
+  let tbody = '<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px;color:var(--text-dim)">Pools</td>';
+  counts.forEach(sc=>{tbody+='<td style="text-align:center;padding:8px;font-family:IBM Plex Mono">'+Math.ceil(sc/PP)+'</td>'});
+  tbody+='</tr><tr style="border-bottom:1px solid var(--border);background:var(--surface2)"><td style="padding:8px;font-weight:600">Cost/well</td>';
+  counts.forEach(sc=>{
+    const p=Math.ceil(sc/PP);
+    const pw=KIT.dsp+KIT.ab+(KIT.t100/KIT.t100rxns*p)/sc+(KIT.snt/KIT.sntRxns*p)/sc+seqPerSample+((KIT.qubit*2+KIT.tape*2)*p)/sc+(KIT.cons*p)/sc;
+    tbody+='<td style="text-align:center;padding:8px;font-family:IBM Plex Mono;font-weight:600;color:var(--teal)">$'+pw.toFixed(2)+'</td>';
+  });
+  tbody+='</tr><tr><td style="padding:8px;color:var(--text-dim)">Project total</td>';
+  counts.forEach(sc=>{
+    const p=Math.ceil(sc/PP);
+    const pw=KIT.dsp+KIT.ab+(KIT.t100/KIT.t100rxns*p)/sc+(KIT.snt/KIT.sntRxns*p)/sc+seqPerSample+((KIT.qubit*2+KIT.tape*2)*p)/sc+(KIT.cons*p)/sc;
+    tbody+='<td style="text-align:center;padding:8px;font-family:IBM Plex Mono">$'+Math.round(pw*sc).toLocaleString()+'</td>';
+  });
+  tbody+='</tr>';
+  document.getElementById('cc-scenario-body').innerHTML = tbody;
+}
+
+function exportXLSX() {
+  if(typeof XLSX==='undefined'){alert('SheetJS not loaded. Check internet connection.');return;}
+  const S=+document.getElementById('cc-samples').value||24;
+  const PP=+document.getElementById('cc-perpol').value||20;
+  const C=+document.getElementById('cc-cells').value||500;
+  const R=+document.getElementById('cc-reads').value||20000;
+  const pools=Math.ceil(S/PP);
+  const rps=C*R;
+  const seq=KIT.aviti*rps/1e6;
+  const items=[
+    ['DSP-MeOH Fixation',KIT.dsp,'$6.43/sample from iOB invoiced costs'],
+    ['TotalSeq-A Hashtag Ab',KIT.ab,'$517/Ab, 1000 rxns/Ab = $0.50/sample'],
+    ['T100 Library Prep (14-split)',(KIT.t100/KIT.t100rxns)*pools/S,'$6,720/kit / 14 rxns x '+pools+' pools / '+S+' samples'],
+    ['SNT Enrichment (HTO library)',(KIT.snt/KIT.sntRxns)*pools/S,'$840/kit / 8 rxns x '+pools+' pools / '+S+' samples'],
+    ['AVITI Sequencing',seq,'$1.76/M reads x '+C+' cells x '+R+' reads = '+(rps/1e6).toFixed(0)+'M reads'],
+    ['Qubit QC (2/rxn)',(KIT.qubit*2*pools)/S,'$1.95/assay x 2 x '+pools+' pools / '+S+' samples'],
+    ['TapeStation QC (2/rxn)',(KIT.tape*2*pools)/S,'$5.47/run x 2 x '+pools+' pools / '+S+' samples'],
+    ['Lab Consumables',(KIT.cons*pools)/S,'$25/rxn x '+pools+' pools / '+S+' samples'],
+  ];
+  const total=items.reduce((s,i)=>s+i[1],0);
+
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Per-Well Cost
+  const ws1Data=[
+    ['iOrganBio - scRNA-seq Per-Well Cost Calculator'],
+    ['Illumina SC 3\' RNA Prep (PIPseq T100 14-split) + Element AVITI'],
+    ['Generated: '+new Date().toLocaleDateString()],
+    [],
+    ['PROJECT INPUTS','','',''],
+    ['Total samples',S,'','wells/conditions'],
+    ['Samples per pool',PP,'','20 TotalSeq-A hashtags per pool'],
+    ['Pools (reactions) needed',pools,'','ceil('+S+'/'+PP+')'],
+    ['Cells per sample',C,'','iOB standard'],
+    ['Reads per cell (total)',R,'','RNA + HTO combined'],
+    ['Reads per sample',rps,'',''+C+' x '+R],
+    [],
+    ['KIT PRICES (Validated - LP V4)','Price','Per-Sample','Source'],
+    ['T100 Kit (14-split)',KIT.t100,KIT.t100/KIT.t100rxns/PP,'$6,720 / 14 rxns / '+PP+' samples'],
+    ['SNT Enrichment Kit',KIT.snt,KIT.snt/KIT.sntRxns/PP,'$840 / 8 rxns / '+PP+' samples'],
+    ['TotalSeq-A Ab',KIT.ab,KIT.ab,'$517/Ab, 1000 rxns/Ab'],
+    ['DSP-MeOH Fixation',KIT.dsp,KIT.dsp,'Invoiced reagent cost'],
+    ['AVITI (per M reads)',KIT.aviti,seq,'$1.76/M x '+(rps/1e6).toFixed(0)+'M reads/sample'],
+    [],
+    ['COST PER WELL - ITEMIZED','','Cost/Well','Notes'],
+  ];
+  items.forEach(i=>ws1Data.push([i[0],'',i[1],i[2]]));
+  ws1Data.push([]);
+  ws1Data.push(['TOTAL COST PER WELL','',total,'']);
+  ws1Data.push([]);
+  ws1Data.push(['PROJECT TOTAL','',total*S,S+' samples x $'+total.toFixed(2)]);
+
+  const ws1=XLSX.utils.aoa_to_sheet(ws1Data);
+  ws1['!cols']=[{wch:40},{wch:14},{wch:14},{wch:50}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Per-Well Cost');
+
+  // Sheet 2: Scenarios
+  const scenCounts=[10,20,24,40,60,80,100,160];
+  const ws2Data=[
+    ['Scenario Matrix - Per-Well Cost by Sample Count'],
+    ['Cells/sample: '+C+', Reads/cell: '+R+', AVITI $1.76/M reads'],
+    [],
+    ['Samples',...scenCounts],
+    ['Pools',...scenCounts.map(sc=>Math.ceil(sc/PP))],
+  ];
+  const pwRow=['Cost/well'];
+  const ptRow=['Project total'];
+  scenCounts.forEach(sc=>{
+    const p=Math.ceil(sc/PP);
+    const pw=KIT.dsp+KIT.ab+(KIT.t100/KIT.t100rxns*p)/sc+(KIT.snt/KIT.sntRxns*p)/sc+seq+((KIT.qubit*2+KIT.tape*2)*p)/sc+(KIT.cons*p)/sc;
+    pwRow.push(Math.round(pw*100)/100);
+    ptRow.push(Math.round(pw*sc));
+  });
+  ws2Data.push(pwRow,ptRow);
+  const ws2=XLSX.utils.aoa_to_sheet(ws2Data);
+  ws2['!cols']=[{wch:14},...scenCounts.map(()=>({wch:12}))];
+  XLSX.utils.book_append_sheet(wb,ws2,'Scenarios');
+
+  XLSX.writeFile(wb,'iOB_scRNAseq_Cost_'+S+'samples.xlsx');
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', calcCost);
+// Also run immediately in case DOM is already loaded
+if(document.readyState!=='loading') calcCost();
 </script>
 
 </body>
